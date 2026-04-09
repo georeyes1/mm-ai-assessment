@@ -11,10 +11,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .meta{font-size:12px;color:#888780;margin-bottom:4px}
 h1{font-size:22px;font-weight:500;margin-bottom:6px}
 .sub{font-size:13px;color:#5f5e5a;margin-bottom:1.5rem;line-height:1.6}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
 label{font-size:12px;color:#5f5e5a;display:block;margin-bottom:4px}
-input,select{width:100%;padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a18;outline:none}
-input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
+input{padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a18;outline:none;width:100%;max-width:320px}
+input:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
+.name-field{margin-bottom:1.5rem}
 .prog-bar{height:3px;background:#e0dfd8;border-radius:2px;margin-bottom:4px;overflow:hidden}
 .prog-fill{height:100%;background:#1d9e75;border-radius:2px;transition:width .3s}
 .prog-lbl{font-size:11px;color:#888780;margin-bottom:2rem}
@@ -59,7 +59,10 @@ input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
 .hl.gap .hl-val{color:#4a1b0c}
 .overall{font-size:13px;color:#5f5e5a;margin-bottom:2rem}
 .overall strong{color:#1a1a18}
-@media(max-width:480px){.fields,.highlights{grid-template-columns:1fr}}
+.send-btn{display:inline-block;margin-top:1rem;padding:9px 20px;font-size:13px;border:0.5px solid #aaa;border-radius:8px;background:#fff;color:#1a1a18;text-decoration:none}
+.send-btn:hover{background:#f1efe8}
+.send-note{font-size:12px;color:#888780;margin-top:8px;line-height:1.6}
+@media(max-width:480px){.highlights{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -68,16 +71,20 @@ input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
     <p class="meta">Money Movement · ~5 min</p>
     <h1>AI Maturity Assessment</h1>
     <p class="sub">There are no right answers. Choose the option that best describes how you work today, not how you'd like to work.</p>
-    <div style="margin-bottom:1.5rem">
+
+    <div class="name-field">
       <label for="pm-name">Name</label>
-      <input type="text" id="pm-name" placeholder="Your name" oninput="update()" style="max-width:320px" />
+      <input type="text" id="pm-name" placeholder="Your name" oninput="update()" />
     </div>
+
     <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
     <p class="prog-lbl" id="pl">0 of 9 questions</p>
+
     <div id="questions"></div>
+
     <div class="footer">
       <button class="btn" id="sub-btn" disabled onclick="showResults()">See results</button>
-      <span class="hint" id="hint">Enter your name and squad</span>
+      <span class="hint" id="hint">Enter your name</span>
     </div>
   </div>
 
@@ -90,14 +97,13 @@ input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
       <div class="hl str"><p class="hl-lbl">Biggest strength</p><p class="hl-val" id="res-str"></p></div>
       <div class="hl gap"><p class="hl-lbl">Biggest gap</p><p class="hl-val" id="res-gap"></p></div>
     </div>
-    <a id="send-btn" href="#" style="display:inline-block;margin-top:0.5rem;padding:9px 20px;font-size:13px;border:0.5px solid #aaa;border-radius:8px;background:#fff;color:#1a1a18;text-decoration:none">Send results to Geo</a>
-    <p style="font-size:12px;color:#888780;margin-top:10px;line-height:1.6">Opens your email client with results pre-filled. Your GPM will review them with you in a 1:1.</p>
+    <a id="send-btn" href="#" class="send-btn">Send results to Geo</a>
+    <p class="send-note">Opens your email client with results pre-filled. Your GPM will review them with you in a 1:1.</p>
   </div>
 </div>
 
 <script>
 const LEVELS=["L1 – No AI","L2 – Reactive","L3 – Integrated","L4 – Builder"];
-const BARS=["#888780","#378add","#1d9e75","#7f77dd"];
 const Qs=[
   {id:"mon",label:"Provider monitoring",text:"How do you find out that a provider (Fireblocks, Praxis, SPEI, Payoneer, etc.) is degraded or at risk before it becomes an incident?",opts:["I find out through Slack or when Engineering escalates to me — I have no proactive visibility.","When I suspect a problem, I use AI on-demand to analyze logs, metrics, or provider reports.","I have a regular flow where I consolidate provider signals using AI and review them before they escalate.","I've built my own AI-powered early warning system that alerts me before Engineering detects the issue."]},
   {id:"inc",label:"Incident management",text:"How do you participate in the full incident cycle — diagnosis, communication, resolution, and learning?",opts:["I participate reactively; my role is mainly to communicate status, not to analyze.","I use AI on-demand to draft comms, summarize timelines, or structure postmortems.","I have a defined routine where AI helps me assess impact, prepare communication, and extract learnings systematically.","I use AI to connect patterns across historical and current incidents, and I generate root cause hypotheses before the team does."]},
@@ -123,15 +129,13 @@ function update(){
   document.getElementById("pl").textContent=answered+" of "+Qs.length+" questions";
   const can=answered===Qs.length&&name;
   document.getElementById("sub-btn").disabled=!can;
-  document.getElementById("hint").textContent=!name?"Enter your name":(Qs.length-answered>0?(Qs.length-answered)+" questions remaining":"");
-  if(can)document.getElementById("hint").textContent="";
+  document.getElementById("hint").textContent=!name?"Enter your name":answered<Qs.length?(Qs.length-answered)+" questions remaining":"";
 }
 
 function pick(qid,idx){
   answers[qid]=idx;
   document.querySelectorAll('[data-qid="'+qid+'"]').forEach((b,i)=>{
-    b.className="opt"+(i===idx?" sel-"+idx:"");
-    b.querySelector(".badge").style.color=i===idx?["#5f5e5a","#185fa5","#0f6e56","#534ab7"][i]:"#888780";
+    b.className="opt"+(i===idx?" sel-"+i:"");
   });
   update();
 }
@@ -155,15 +159,13 @@ function showResults(){
   });
 
   const body=`AI Maturity Assessment — ${name}\n\nOverall: ${overall.toFixed(1)} / 4 (${levelLabel(overall)})\n\n${scores.map(s=>`${s.label}: ${s.score}/4 (${levelLabel(s.score)})`).join("\n")}\n\nBiggest strength: ${sorted[sorted.length-1].label}\nBiggest gap: ${sorted[0].label}`;
-  const mailto=`mailto:carlos.reyes@bitso.com?subject=AI Maturity Assessment — ${encodeURIComponent(name)}&body=${encodeURIComponent(body)}`;
-  document.getElementById("send-btn").href=mailto;
+  document.getElementById("send-btn").href=`mailto:carlos.reyes@bitso.com?subject=${encodeURIComponent("AI Maturity Assessment — "+name)}&body=${encodeURIComponent(body)}`;
 
   document.getElementById("form-view").style.display="none";
   document.getElementById("results-view").style.display="block";
   window.scrollTo(0,0);
 }
 
-// Render questions
 const qc=document.getElementById("questions");
 Qs.forEach((q,qi)=>{
   const opts=q.opts.map((o,i)=>`<button class="opt" data-qid="${q.id}" onclick="pick('${q.id}',${i})"><span class="badge">${LEVELS[i]}</span><span>${o}</span></button>`).join("");
