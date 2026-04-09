@@ -68,18 +68,9 @@ input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
     <p class="meta">Money Movement · ~5 min</p>
     <h1>AI Maturity Assessment</h1>
     <p class="sub">There are no right answers. Choose the option that best describes how you work today, not how you'd like to work.</p>
-    <div class="fields">
-      <div>
-        <label for="pm-name">Name</label>
-        <input type="text" id="pm-name" placeholder="Your name" oninput="update()" />
-      </div>
-      <div>
-        <label for="pm-squad">Squad</label>
-        <select id="pm-squad" onchange="update()">
-          <option value="">Select</option>
-          <option>Nexus</option><option>Gearbox</option><option>Crypto Core</option><option>Fiat xForce</option><option>Fiat Rangers</option>
-        </select>
-      </div>
+    <div style="margin-bottom:1.5rem">
+      <label for="pm-name">Name</label>
+      <input type="text" id="pm-name" placeholder="Your name" oninput="update()" style="max-width:320px" />
     </div>
     <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
     <p class="prog-lbl" id="pl">0 of 9 questions</p>
@@ -126,13 +117,12 @@ function barColor(s){if(s<1.5)return"#888780";if(s<2.5)return"#378add";if(s<3.5)
 function update(){
   const answered=Qs.filter(q=>answers[q.id]!==undefined).length;
   const name=document.getElementById("pm-name").value.trim();
-  const squad=document.getElementById("pm-squad").value;
   const pct=Math.round(answered/Qs.length*100);
   document.getElementById("pf").style.width=pct+"%";
   document.getElementById("pl").textContent=answered+" of "+Qs.length+" questions";
-  const can=answered===Qs.length&&name&&squad;
+  const can=answered===Qs.length&&name;
   document.getElementById("sub-btn").disabled=!can;
-  document.getElementById("hint").textContent=(!name||!squad)?"Enter your name and squad":(Qs.length-answered)+" questions remaining";
+  document.getElementById("hint").textContent=!name?"Enter your name":(Qs.length-answered>0?(Qs.length-answered)+" questions remaining":"");
   if(can)document.getElementById("hint").textContent="";
 }
 
@@ -147,12 +137,11 @@ function pick(qid,idx){
 
 function showResults(){
   const name=document.getElementById("pm-name").value.trim();
-  const squad=document.getElementById("pm-squad").value;
   const scores=Qs.map(q=>({...q,score:(answers[q.id]??0)+1}));
   const overall=scores.reduce((a,b)=>a+b.score,0)/scores.length;
   const sorted=[...scores].sort((a,b)=>a.score-b.score);
 
-  document.getElementById("res-name").textContent=name+" · "+squad;
+  document.getElementById("res-name").textContent=name;
   document.getElementById("res-overall").innerHTML="Overall level: <strong>"+levelLabel(overall)+"</strong> &nbsp;·&nbsp; "+overall.toFixed(1)+" / 4";
   document.getElementById("res-str").textContent=sorted[sorted.length-1].label;
   document.getElementById("res-gap").textContent=sorted[0].label;
