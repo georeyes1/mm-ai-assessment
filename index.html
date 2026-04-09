@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Maturity Assessment — Money Movement</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:2rem 1rem}
+.wrap{max-width:640px;margin:0 auto}
+.meta{font-size:12px;color:#888780;margin-bottom:4px}
+h1{font-size:22px;font-weight:500;margin-bottom:6px}
+.sub{font-size:13px;color:#5f5e5a;margin-bottom:1.5rem;line-height:1.6}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+label{font-size:12px;color:#5f5e5a;display:block;margin-bottom:4px}
+input,select{width:100%;padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a18;outline:none}
+input:focus,select:focus{border-color:#888;box-shadow:0 0 0 2px rgba(0,0,0,.06)}
+.prog-bar{height:3px;background:#e0dfd8;border-radius:2px;margin-bottom:4px;overflow:hidden}
+.prog-fill{height:100%;background:#1d9e75;border-radius:2px;transition:width .3s}
+.prog-lbl{font-size:11px;color:#888780;margin-bottom:2rem}
+.question{margin-bottom:2rem}
+.q-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.q-num{font-size:11px;color:#888780;min-width:18px;flex-shrink:0;padding-top:3px}
+.q-label{font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.q-text{font-size:14px;font-weight:500;line-height:1.55}
+.options{display:grid;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:0.5px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;line-height:1.5;text-align:left;width:100%;color:#1a1a18;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#bbb;background:#fafaf8}
+.opt.sel-0{background:#f1efe8;border:1.5px solid #888780;color:#2c2c2a}
+.opt.sel-1{background:#e6f1fb;border:1.5px solid #378add;color:#0c447c}
+.opt.sel-2{background:#e1f5ee;border:1.5px solid #1d9e75;color:#085041}
+.opt.sel-3{background:#eeedfe;border:1.5px solid #7f77dd;color:#3c3489}
+.badge{font-size:10px;font-weight:500;min-width:82px;flex-shrink:0;padding-top:2px;white-space:nowrap;color:#888780}
+.opt.sel-0 .badge{color:#5f5e5a}
+.opt.sel-1 .badge{color:#185fa5}
+.opt.sel-2 .badge{color:#0f6e56}
+.opt.sel-3 .badge{color:#534ab7}
+.footer{border-top:0.5px solid #ddd;padding-top:1.25rem;display:flex;align-items:center;gap:14px;margin-top:1rem}
+.btn{padding:9px 20px;font-size:13px;border:0.5px solid #aaa;border-radius:8px;background:#fff;cursor:pointer;color:#1a1a18}
+.btn:hover{background:#f1efe8}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.hint{font-size:12px;color:#888780}
+#results-view{display:none}
+.score-card{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.sc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sc-name{font-size:13px;font-weight:500}
+.sc-val{font-size:12px;color:#5f5e5a}
+.bar-bg{height:5px;background:#e0dfd8;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.highlights{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.5rem 0}
+.hl{border-radius:12px;padding:10px 14px}
+.hl.str{background:#e1f5ee}
+.hl.gap{background:#faece7}
+.hl-lbl{font-size:11px;margin-bottom:2px}
+.hl.str .hl-lbl{color:#0f6e56}
+.hl.gap .hl-lbl{color:#993c1d}
+.hl-val{font-size:14px;font-weight:500}
+.hl.str .hl-val{color:#085041}
+.hl.gap .hl-val{color:#4a1b0c}
+.overall{font-size:13px;color:#5f5e5a;margin-bottom:2rem}
+.overall strong{color:#1a1a18}
+@media(max-width:480px){.fields,.highlights{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="form-view">
+    <p class="meta">Money Movement · ~5 min</p>
+    <h1>AI Maturity Assessment</h1>
+    <p class="sub">There are no right answers. Choose the option that best describes how you work today, not how you'd like to work.</p>
+    <div class="fields">
+      <div>
+        <label for="pm-name">Name</label>
+        <input type="text" id="pm-name" placeholder="Your name" oninput="update()" />
+      </div>
+      <div>
+        <label for="pm-squad">Squad</label>
+        <select id="pm-squad" onchange="update()">
+          <option value="">Select</option>
+          <option>Nexus</option><option>Gearbox</option><option>Crypto Core</option><option>Fiat xForce</option><option>Fiat Rangers</option>
+        </select>
+      </div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+    <p class="prog-lbl" id="pl">0 of 9 questions</p>
+    <div id="questions"></div>
+    <div class="footer">
+      <button class="btn" id="sub-btn" disabled onclick="showResults()">See results</button>
+      <span class="hint" id="hint">Enter your name and squad</span>
+    </div>
+  </div>
+
+  <div id="results-view">
+    <p class="meta">Results</p>
+    <h1 id="res-name"></h1>
+    <p class="overall" id="res-overall"></p>
+    <div id="res-scores"></div>
+    <div class="highlights">
+      <div class="hl str"><p class="hl-lbl">Biggest strength</p><p class="hl-val" id="res-str"></p></div>
+      <div class="hl gap"><p class="hl-lbl">Biggest gap</p><p class="hl-val" id="res-gap"></p></div>
+    </div>
+    <p style="font-size:13px;color:#5f5e5a;line-height:1.6">Your GPM will review these results with you in a 1:1 to map out a development path together.</p>
+  </div>
+</div>
+
+<script>
+const LEVELS=["L1 – No AI","L2 – Reactive","L3 – Integrated","L4 – Builder"];
+const BARS=["#888780","#378add","#1d9e75","#7f77dd"];
+const Qs=[
+  {id:"mon",label:"Provider monitoring",text:"How do you find out that a provider (Fireblocks, Praxis, SPEI, Payoneer, etc.) is degraded or at risk before it becomes an incident?",opts:["I find out through Slack or when Engineering escalates to me — I have no proactive visibility.","When I suspect a problem, I use AI on-demand to analyze logs, metrics, or provider reports.","I have a regular flow where I consolidate provider signals using AI and review them before they escalate.","I've built my own AI-powered early warning system that alerts me before Engineering detects the issue."]},
+  {id:"inc",label:"Incident management",text:"How do you participate in the full incident cycle — diagnosis, communication, resolution, and learning?",opts:["I participate reactively; my role is mainly to communicate status, not to analyze.","I use AI on-demand to draft comms, summarize timelines, or structure postmortems.","I have a defined routine where AI helps me assess impact, prepare communication, and extract learnings systematically.","I use AI to connect patterns across historical and current incidents, and I generate root cause hypotheses before the team does."]},
+  {id:"int",label:"Operational integrity",text:"How do you verify that transactions, balances, and reconciliations in your domain are consistent and reliable?",opts:["I rely on Engineering or Operations to flag discrepancies — I don't have direct visibility.","When an alert or discrepancy surfaces, I use AI to analyze data and understand the problem.","I have regular visibility into integrity metrics in my domain and use AI to interpret anomalies before they get reported.","I've built or driven the building of flows where AI automatically detects and classifies integrity anomalies as input to my work."]},
+  {id:"reg",label:"Regulatory interpretation",text:"How do you process a regulatory mandate or compliance change (KYC/KYB, tax reporting, new jurisdiction) and turn it into actionable requirements for your squad?",opts:["I receive it already interpreted from Legal or Compliance — my role is to turn it into tickets.","I use AI to understand the mandate, find precedents, or draft initial requirements on-demand.","I have a flow where AI helps me analyze the mandate, map impacts on my platform, and generate a first draft of requirements that I then refine.","I use AI to anticipate technical and product implications that Legal or Compliance haven't identified yet, and I come to those conversations with my own formed view."]},
+  {id:"coo",label:"Coordination & dependencies",text:"How do you manage dependencies with other squads, EMs, and stakeholders so your squad's work doesn't get blocked or block others?",opts:["I coordinate through Slack and meetings — no systematic dependency tracking.","I use AI on-demand to draft updates, prepare agendas, or summarize dependency status.","I regularly use AI to maintain visibility over dependencies, anticipate blockers, and prepare proactive stakeholder communication.","I've designed a way of operating where AI helps me detect coordination risks before they materialize and prioritize where to intervene."]},
+  {id:"del",label:"Spec & delivery",text:"How do you go from an identified operational or regulatory problem to a clear technical spec and a controlled rollout?",opts:["The process is ad hoc — each spec and rollout is handled differently depending on the problem and the moment.","I use AI to generate spec drafts, rollout checklists, or success criteria on-demand.","I have a consistent flow where AI helps me structure specs, define success criteria, and prepare the rollout plan before each delivery.","I use AI to identify gaps in my specs by comparing them against patterns from past problems, and I adjust before committing work to Engineering."]},
+  {id:"tec",label:"Technical judgment",text:"How do you develop and apply judgment about which integration designs or architectures scale better in your domain?",opts:["My judgment mainly comes from what Engineering recommends — I don't have a formed point of view of my own.","When I need to understand a technical decision, I use AI to research options or understand trade-offs on-demand.","I regularly use AI to study design patterns, analyze postmortems from my domain and the industry, and build up judgment I apply to product decisions.","I have a technical point of view on my domain that I can defend in front of Engineering, and I use AI to refine and keep it current."]},
+  {id:"vis",label:"Platform vision",text:"How do you build and maintain a point of view on where your platform should evolve over the next 12–18 months?",opts:["My vision comes from the roadmap handed down top-down — I don't have an articulated point of view of my own.","I use AI on-demand to explore ideas, research trends, or draft a vision when asked.","I regularly use AI to synthesize signals from the market, regulatory landscape, and operations, and I maintain a platform vision I update frequently.","My platform vision is articulate enough to influence architecture and roadmap decisions in other squads, and I use AI as an active tool to develop and communicate it."]},
+  {id:"bld",label:"Builder capability",text:"To what extent do you use AI to build and ship directly — prototypes, internal tools, executable specs — without depending on Engineering for every step?",opts:["I haven't tried to build anything with AI — my role is still to define and Engineering executes.","I've experimented with AI to generate code, prototypes, or simple automations, but haven't shipped anything to production.","I've used AI to build and deliver something functional — an internal tool, a validated prototype, an automated flow — with minimal Engineering support.","I operate as an active builder: I write executable specs, use agents to implement, and can close end-to-end delivery cycles autonomously."]}
+];
+
+const answers={};
+
+function levelLabel(s){if(s<1.5)return"L1 – No AI";if(s<2.5)return"L2 – Reactive";if(s<3.5)return"L3 – Integrated";return"L4 – Builder";}
+function barColor(s){if(s<1.5)return"#888780";if(s<2.5)return"#378add";if(s<3.5)return"#1d9e75";return"#7f77dd";}
+
+function update(){
+  const answered=Qs.filter(q=>answers[q.id]!==undefined).length;
+  const name=document.getElementById("pm-name").value.trim();
+  const squad=document.getElementById("pm-squad").value;
+  const pct=Math.round(answered/Qs.length*100);
+  document.getElementById("pf").style.width=pct+"%";
+  document.getElementById("pl").textContent=answered+" of "+Qs.length+" questions";
+  const can=answered===Qs.length&&name&&squad;
+  document.getElementById("sub-btn").disabled=!can;
+  document.getElementById("hint").textContent=(!name||!squad)?"Enter your name and squad":(Qs.length-answered)+" questions remaining";
+  if(can)document.getElementById("hint").textContent="";
+}
+
+function pick(qid,idx){
+  answers[qid]=idx;
+  document.querySelectorAll('[data-qid="'+qid+'"]').forEach((b,i)=>{
+    b.className="opt"+(i===idx?" sel-"+idx:"");
+    b.querySelector(".badge").style.color=i===idx?["#5f5e5a","#185fa5","#0f6e56","#534ab7"][i]:"#888780";
+  });
+  update();
+}
+
+function showResults(){
+  const name=document.getElementById("pm-name").value.trim();
+  const squad=document.getElementById("pm-squad").value;
+  const scores=Qs.map(q=>({...q,score:(answers[q.id]??0)+1}));
+  const overall=scores.reduce((a,b)=>a+b.score,0)/scores.length;
+  const sorted=[...scores].sort((a,b)=>a.score-b.score);
+
+  document.getElementById("res-name").textContent=name+" · "+squad;
+  document.getElementById("res-overall").innerHTML="Overall level: <strong>"+levelLabel(overall)+"</strong> &nbsp;·&nbsp; "+overall.toFixed(1)+" / 4";
+  document.getElementById("res-str").textContent=sorted[sorted.length-1].label;
+  document.getElementById("res-gap").textContent=sorted[0].label;
+
+  const sc=document.getElementById("res-scores");
+  sc.innerHTML="";
+  scores.forEach(s=>{
+    const pct=Math.round(((s.score-1)/3)*100);
+    sc.innerHTML+=`<div class="score-card"><div class="sc-row"><span class="sc-name">${s.label}</span><span class="sc-val">${s.score} / 4 · ${levelLabel(s.score)}</span></div><div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${barColor(s.score)}"></div></div></div>`;
+  });
+
+  document.getElementById("form-view").style.display="none";
+  document.getElementById("results-view").style.display="block";
+  window.scrollTo(0,0);
+}
+
+// Render questions
+const qc=document.getElementById("questions");
+Qs.forEach((q,qi)=>{
+  const opts=q.opts.map((o,i)=>`<button class="opt" data-qid="${q.id}" onclick="pick('${q.id}',${i})"><span class="badge">${LEVELS[i]}</span><span>${o}</span></button>`).join("");
+  qc.innerHTML+=`<div class="question"><div class="q-row"><span class="q-num">${qi+1}.</span><div><p class="q-label">${q.label}</p><p class="q-text">${q.text}</p></div></div><div class="options">${opts}</div></div>`;
+});
+</script>
+</body>
+</html>
